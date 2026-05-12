@@ -1,26 +1,2335 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ChevronDown,
+  MapPin,
+  Phone,
+  Clock,
+  MessageCircle,
+  Instagram,
+  Facebook,
+  Youtube,
+  ZoomIn,
+  ExternalLink,
+  Menu,
+  X,
+  Star,
+  ArrowRight,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: Wonderstouch,
+  head: () => ({
+    meta: [
+      { title: "Wonderstouch — Men's Barbershop & Grooming Lounge | Dubai & Istanbul" },
+      {
+        name: "description",
+        content:
+          "Wonderstouch is a premier men's barbershop with locations in Umm Al Sheif, Dubai and Elgün Sokağı, Istanbul. Precision cuts, beards, hot towel shaves.",
+      },
+    ],
+  }),
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+type LocationKey = "dubai" | "istanbul";
+
+const LOCATIONS: Record<
+  LocationKey,
+  {
+    flag: string;
+    label: string;
+    address: string;
+    phone: string;
+    whatsapp: string;
+    hours: string;
+    currency: string;
+    mapLabel: string;
+  }
+> = {
+  dubai: {
+    flag: "🇦🇪",
+    label: "DUBAI",
+    address: "Wonderstouch, Umm Al Sheif, Dubai, UAE",
+    phone: "+971 4 XXX XX",
+    whatsapp: "+971 50 XXX XXXX",
+    hours: "Sat–Thu: 9:00 AM – 10:00 PM  •  Fri: 2:00 PM – 10:00 PM",
+    currency: "AED",
+    mapLabel: "Umm Al Sheif, Dubai",
+  },
+  istanbul: {
+    flag: "🇹🇷",
+    label: "ISTANBUL",
+    address: "Wonderstouch, Elgün Sokağı, Istanbul, Turkey",
+    phone: "+90 212 XXX XXXX",
+    whatsapp: "+90 530 XXX XXXX",
+    hours: "Mon–Sun: 10:00 AM – 9:00 PM",
+    currency: "EUR",
+    mapLabel: "Elgün Sokağı, Istanbul",
+  },
+};
+
+const NAV_LINKS = [
+  "SERVICES",
+  "OUR BARBERS",
+  "GALLERY",
+  "PACKAGES",
+  "LOCATIONS",
+  "CONTACT",
+];
+
+const SERVICES = [
+  {
+    name: "Haircut & Styling",
+    img: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&q=80",
+    desc: "Precision cuts, skin fades, taper fades, and textured crops for every hair type. From AED 60.",
+  },
+  {
+    name: "Beard Trim & Sculpting",
+    img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=600&q=80",
+    desc: "Expert beard shaping, lining, and hot-oil conditioning. Clean lines, every time. From AED 40.",
+  },
+  {
+    name: "Classic Hot Towel Shave",
+    img: "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=600&q=80",
+    desc: "Traditional straight-razor shave with steamed towel, pre-shave oil, and cooling balm. From AED 80.",
+  },
+  {
+    name: "Hair & Beard Colour",
+    img: "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=600&q=80",
+    desc: "Grey blending, full colour, and beard tints. Discreet, natural results. From AED 120.",
+  },
+  {
+    name: "Men's Grooming Packages",
+    img: "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=600&q=80",
+    desc: "Cut + beard + hot towel shave combo packages. Dubai from AED 150, Istanbul from €45.",
+  },
+  {
+    name: "Scalp & Hair Treatments",
+    img: "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=600&q=80",
+    desc: "Anti-dandruff, hydration, and hair-growth treatments for a healthy scalp. From AED 90.",
+  },
+];
+
+const GALLERY = [
+  "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80",
+  "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80",
+  "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=500&q=80",
+  "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=500&q=80",
+  "https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=500&q=80",
+  "https://images.unsplash.com/photo-1519699047748-de8e457a634e?w=500&q=80",
+];
+
+const REVIEWS = [
+  {
+    quote:
+      "The best fade I've ever had — and I've sat in chairs across London, Riyadh, and New York. Wonderstouch Dubai is on another level. The hot towel shave alone is worth the visit.",
+    name: "Khalid A.",
+    where: "Business Bay, Dubai",
+    initial: "K",
+  },
+  {
+    quote:
+      "I drive from Business Bay every two weeks just for this place. My barber knows exactly what I want before I even sit down. Sharp, fast, and professional every single time.",
+    name: "Marcus T.",
+    where: "DIFC, Dubai",
+    initial: "M",
+  },
+  {
+    quote:
+      "Found the Istanbul branch while travelling and it completely blew me away. Same sharp standard as Dubai. Unbelievable consistency across two cities.",
+    name: "Emre S.",
+    where: "Beyoğlu, Istanbul",
+    initial: "E",
+  },
+];
+
+const BARBERS = [
+  {
+    name: "Marcus",
+    title: "SENIOR FADE SPECIALIST",
+    bio: "10 years of precision fades and taper cuts, trained across London and Dubai.",
+    img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+  },
+  {
+    name: "Tariq",
+    title: "BEARD & SHAVE EXPERT",
+    bio: "Master of the straight-razor hot towel shave and classic barbering techniques.",
+    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
+  },
+  {
+    name: "Kerem",
+    title: "MASTER BARBER, ISTANBUL",
+    bio: "12 years of award-winning cuts across Istanbul and Berlin. The man behind the Istanbul chair.",
+    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
+  },
+  {
+    name: "Yousef",
+    title: "COLOUR & SCALP SPECIALIST",
+    bio: "Expert in men's hair colour, grey blending, and scalp treatment programmes.",
+    img: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80",
+  },
+];
+
+const PRICING = {
+  essentials: [
+    ["Haircut (Scissor or Clipper)", "AED 60", "€18"],
+    ["Beard Trim & Line-up", "AED 40", "€12"],
+    ["Hot Towel Shave", "AED 80", "€22"],
+    ["Eyebrow Shaping (Men's)", "AED 25", "€8"],
+    ["Hair Wash & Blowdry", "AED 50", "€14"],
+    ["Kids' Haircut (Boys Under 12)", "AED 45", "€14"],
+  ],
+  signature: [
+    ["Cut + Beard Combo", "AED 150", "€42"],
+    ["Cut + Hot Towel Shave", "AED 180", "€52"],
+    ["Full Grooming Package", "AED 220", "€65"],
+    ["Hair Colour — Grey Blend", "AED 120", "€35"],
+    ["Beard Colour & Tint", "AED 80", "€25"],
+    ["Cut + Scalp Treatment", "AED 160", "€48"],
+  ],
+  premium: [
+    ["VIP Grooming Ritual (Cut + Beard + Shave)", "AED 350", "€100"],
+    ["Hair Replacement System Fitting", "AED 800", "€250"],
+    ["Groom's Package (Event Ready)", "AED 600", "€180"],
+    ["Full Hair Colour + Cut", "AED 300", "€90"],
+    ["Advanced Scalp Treatment Course", "AED 250", "€75"],
+    ["Monthly Membership (Unlimited Cuts)", "AED 499", "€149"],
+  ],
+};
+
+function Reveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            setVisible(true);
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   return (
     <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(32px)",
+        transition: "opacity 0.65s ease, transform 0.65s ease",
+      }}
     >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
+      {children}
+    </div>
+  );
+}
+
+function LocationPills({
+  location,
+  setLocation,
+  size = "sm",
+}: {
+  location: LocationKey;
+  setLocation: (l: LocationKey) => void;
+  size?: "sm" | "md";
+}) {
+  const padding = size === "md" ? "10px 22px" : "6px 14px";
+  const fs = size === "md" ? 12 : 10;
+  return (
+    <div style={{ display: "flex", gap: 8 }}>
+      {(["dubai", "istanbul"] as LocationKey[]).map((k) => {
+        const active = location === k;
+        return (
+          <button
+            key={k}
+            onClick={() => setLocation(k)}
+            style={{
+              padding,
+              fontSize: fs,
+              fontFamily: "Inter, sans-serif",
+              fontWeight: active ? 700 : 500,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              background: active ? "#D4AF37" : "transparent",
+              color: active ? "#111111" : "#888",
+              border: active ? "1px solid #D4AF37" : "1px solid #444",
+              borderRadius: 999,
+              cursor: "pointer",
+              transition: "all 0.3s ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {LOCATIONS[k].flag} {LOCATIONS[k].label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function GoldButton({
+  children,
+  outlined,
+  onClick,
+  full,
+}: {
+  children: React.ReactNode;
+  outlined?: boolean;
+  onClick?: () => void;
+  full?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="ws-btn"
+      data-outlined={outlined ? "1" : "0"}
+      style={{
+        padding: "14px 32px",
+        fontSize: 11,
+        fontFamily: "Inter, sans-serif",
+        fontWeight: 600,
+        letterSpacing: "0.18em",
+        textTransform: "uppercase",
+        background: outlined ? "transparent" : "#D4AF37",
+        color: outlined ? "#D4AF37" : "#111111",
+        border: outlined ? "1.5px solid #D4AF37" : "1.5px solid #D4AF37",
+        borderRadius: 2,
+        cursor: "pointer",
+        transition: "all 0.3s ease",
+        width: full ? "100%" : "auto",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Wonderstouch() {
+  const [location, setLocation] = useState<LocationKey>("dubai");
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [reviewIdx, setReviewIdx] = useState(0);
+  const [bookOpen, setBookOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // styles + fonts
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap";
+    document.head.appendChild(link);
+    document.documentElement.style.scrollBehavior = "smooth";
+
+    const style = document.createElement("style");
+    style.innerHTML = `
+      body { margin:0; font-family: 'Inter', sans-serif; background:#111; color:#E8E0D5; }
+      * { box-sizing: border-box; }
+      .bebas { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
+      .eyebrow { font-family:'Inter',sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:0.28em; color:#D4AF37; font-weight:500; }
+      .ws-nav-link { position:relative; display:inline-block; padding:6px 0; color:#E8E0D5; text-decoration:none; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; font-family:'Inter',sans-serif; transition:color 0.3s ease; cursor:pointer;}
+      .ws-nav-link::after { content:''; position:absolute; left:0; bottom:0; height:1px; width:0; background:#D4AF37; transition: width 0.3s ease;}
+      .ws-nav-link:hover { color:#D4AF37; }
+      .ws-nav-link:hover::after { width:100%; }
+      .ws-btn[data-outlined="1"]:hover { background:#D4AF37 !important; color:#111111 !important; }
+      .ws-btn[data-outlined="0"]:hover { background:#8B6914 !important; }
+      @keyframes ws-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+      @keyframes ws-shimmer { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+      @keyframes ws-pulse { 0%,100%{box-shadow:0 6px 24px rgba(37,211,102,0.4)} 50%{box-shadow:0 6px 36px rgba(37,211,102,0.65)} }
+      .service-card:hover .service-overlay { opacity:1; }
+      .service-card:hover .service-img { transform:scale(1.05); }
+      .gallery-item:hover .gallery-img { transform:scale(1.04); }
+      .gallery-item:hover .gallery-overlay { opacity:1; }
+      .barber-img-wrap:hover img { outline:2px solid #D4AF37; outline-offset:6px; }
+      .footer-link:hover { color:#D4AF37 !important; }
+      .social-icon:hover { color:#fff !important; transform:scale(1.1); }
+      .ws-section { padding: 100px 0; }
+      .ws-container { max-width:1200px; margin:0 auto; padding: 0 40px; }
+      @media (max-width: 768px) {
+        .ws-section { padding: 60px 0; }
+        .ws-container { padding: 0 20px; }
+        .desktop-only { display:none !important; }
+      }
+      @media (min-width: 769px) {
+        .mobile-only { display:none !important; }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
+
+  // mobile detect
+  useEffect(() => {
+    const onR = () => setIsMobile(window.innerWidth < 768);
+    onR();
+    window.addEventListener("resize", onR);
+    return () => window.removeEventListener("resize", onR);
+  }, []);
+
+  // scroll
+  useEffect(() => {
+    const onS = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", onS);
+    return () => window.removeEventListener("scroll", onS);
+  }, []);
+
+  // geo
+  useEffect(() => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 3000);
+    fetch("https://ipapi.co/json/", { signal: ctrl.signal })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.country_code === "TR") setLocation("istanbul");
+        else if (d?.country_code === "AE") setLocation("dubai");
+      })
+      .catch(() => {})
+      .finally(() => clearTimeout(t));
+  }, []);
+
+  // review carousel
+  useEffect(() => {
+    const id = setInterval(() => setReviewIdx((i) => (i + 1) % REVIEWS.length), 4000);
+    return () => clearInterval(id);
+  }, []);
+
+  const loc = LOCATIONS[location];
+
+  const openBook = () => setBookOpen(true);
+
+  return (
+    <div style={{ background: "#111111", color: "#E8E0D5", overflowX: "hidden" }}>
+      {/* NAV */}
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          padding: "18px 40px",
+          background: scrolled ? "#111111" : "transparent",
+          boxShadow: scrolled ? "0 2px 30px rgba(0,0,0,0.5)" : "none",
+          transition: "all 0.35s ease",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div>
+          <div
+            className="bebas"
+            style={{ fontSize: 28, color: "#D4AF37", letterSpacing: "0.2em", lineHeight: 1 }}
+          >
+            WONDERSTOUCH
+          </div>
+          <div
+            style={{
+              fontSize: 9,
+              color: "#888",
+              letterSpacing: "0.25em",
+              textTransform: "uppercase",
+              marginTop: 4,
+            }}
+          >
+            GROOMING • BARBERSHOP
+          </div>
+        </div>
+
+        <div className="desktop-only" style={{ display: "flex", gap: 30 }}>
+          {NAV_LINKS.map((l) => (
+            <a key={l} className="ws-nav-link">
+              {l}
+            </a>
+          ))}
+        </div>
+
+        <div className="desktop-only" style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <LocationPills location={location} setLocation={setLocation} />
+          <button
+            onClick={openBook}
+            style={{
+              border: "1.5px solid #D4AF37",
+              background: "transparent",
+              color: "#D4AF37",
+              padding: "10px 22px",
+              fontSize: 11,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              transition: "all 0.3s ease",
+              fontFamily: "Inter",
+              fontWeight: 600,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#25D366",
+                display: "inline-block",
+              }}
+            />
+            BOOK NOW
+          </button>
+        </div>
+
+        <button
+          className="mobile-only"
+          onClick={() => setMobileOpen(true)}
+          style={{ background: "transparent", border: "none", color: "#D4AF37", cursor: "pointer" }}
+          aria-label="Open menu"
+        >
+          <Menu size={28} />
+        </button>
+      </nav>
+
+      {/* Location banner */}
+      <div
+        style={{
+          position: "fixed",
+          top: 76,
+          left: 0,
+          right: 0,
+          zIndex: 999,
+          background: "#1A1A1A",
+          padding: "10px 40px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 16,
+          fontSize: 12,
+          color: "#888",
+          textTransform: "uppercase",
+          letterSpacing: "0.2em",
+          fontFamily: "Inter",
+        }}
+      >
+        <span className="desktop-only">CHOOSE YOUR LOCATION:</span>
+        <LocationPills location={location} setLocation={setLocation} />
+      </div>
+
+      {/* MOBILE MENU */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "#111111",
+              zIndex: 2000,
+              display: "flex",
+              flexDirection: "column",
+              padding: "30px",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div className="bebas" style={{ fontSize: 24, color: "#D4AF37", letterSpacing: "0.2em" }}>
+                WONDERSTOUCH
+              </div>
+              <button
+                onClick={() => setMobileOpen(false)}
+                style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer" }}
+              >
+                <X size={32} />
+              </button>
+            </div>
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 32,
+              }}
+            >
+              {NAV_LINKS.map((l) => (
+                <div key={l} className="bebas" style={{ fontSize: 42, color: "#fff" }}>
+                  {l}
+                </div>
+              ))}
+              <LocationPills location={location} setLocation={setLocation} size="md" />
+            </div>
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                openBook();
+              }}
+              style={{
+                background: "#D4AF37",
+                color: "#111",
+                border: "none",
+                padding: "18px",
+                fontSize: 13,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                fontWeight: 700,
+                fontFamily: "Inter",
+                cursor: "pointer",
+              }}
+            >
+              <MessageCircle size={16} style={{ verticalAlign: "middle", marginRight: 8 }} />
+              BOOK ON WHATSAPP
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* HERO */}
+      <section
+        style={{
+          height: "100vh",
+          minHeight: 640,
+          position: "relative",
+          overflow: "hidden",
+          backgroundImage:
+            "url(https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1920&q=85)",
+          backgroundSize: "cover",
+          backgroundPosition: "center 40%",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(160deg, rgba(10,10,10,0.80) 0%, rgba(10,10,10,0.55) 50%, rgba(10,10,10,0.82) 100%)",
+          }}
+        />
+        <div
+          style={{
+            position: "relative",
+            zIndex: 1,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            maxWidth: 760,
+            marginLeft: "clamp(40px, 8vw, 160px)",
+            paddingRight: 20,
+          }}
+        >
+          <Reveal>
+            <div
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.35em",
+                textTransform: "uppercase",
+                color: "#D4AF37",
+                fontFamily: "Inter",
+                fontWeight: 500,
+              }}
+            >
+              HAIRCUT • BEARD • SHAVE • GROOMING
+            </div>
+            <h1
+              className="bebas"
+              style={{
+                fontSize: "clamp(60px, 10vw, 110px)",
+                color: "#fff",
+                lineHeight: 0.95,
+                margin: "20px 0 0",
+              }}
+            >
+              WHERE SHARP MEN GET SHARPER
+            </h1>
+            <div
+              className="bebas"
+              style={{
+                fontSize: "clamp(24px, 3.5vw, 44px)",
+                color: "#D4AF37",
+                marginTop: 16,
+              }}
+            >
+              Dubai & Istanbul's Premier Barbershop
+            </div>
+            <p
+              style={{
+                fontSize: 16,
+                color: "#E8E0D5",
+                maxWidth: 480,
+                marginTop: 20,
+                lineHeight: 1.7,
+              }}
+            >
+              Expert barbers, razor-edge precision, and a grooming lounge built for the modern man — in
+              the heart of two great cities.
+            </p>
+            <div style={{ display: "flex", gap: 16, marginTop: 40, flexWrap: "wrap" }}>
+              <GoldButton onClick={openBook}>BOOK YOUR CHAIR</GoldButton>
+              <button
+                style={{
+                  padding: "14px 32px",
+                  fontSize: 11,
+                  fontFamily: "Inter",
+                  fontWeight: 600,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  background: "transparent",
+                  color: "#fff",
+                  border: "1.5px solid rgba(255,255,255,0.65)",
+                  borderRadius: 2,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                EXPLORE SERVICES
+              </button>
+            </div>
+            <div style={{ display: "flex", gap: 32, marginTop: 36, flexWrap: "wrap" }}>
+              {[
+                ["2", "CITIES"],
+                ["15+", "BARBERS"],
+                ["4.9 ★", "RATING"],
+              ].map(([n, l]) => (
+                <div key={l}>
+                  <div className="bebas" style={{ fontSize: 32, color: "#D4AF37" }}>
+                    {n}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "#888",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.2em",
+                    }}
+                  >
+                    {l}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            bottom: 30,
+            left: "50%",
+            transform: "translateX(-50%)",
+            animation: "ws-bounce 2s infinite",
+            color: "#D4AF37",
+            zIndex: 1,
+          }}
+        >
+          <ChevronDown size={28} />
+        </div>
+      </section>
+
+      {/* GOLD STATS BAR */}
+      <section style={{ background: "#D4AF37", padding: "24px 40px" }}>
+        <div
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
+            gap: 20,
+          }}
+        >
+          {[
+            ["15+", "Expert Barbers"],
+            ["5,000+", "Men Served"],
+            ["2", "Cities Worldwide"],
+            ["4.9 ★", "Google Rating"],
+          ].map(([n, l], i) => (
+            <div
+              key={l}
+              style={{
+                textAlign: "center",
+                borderRight: !isMobile && i < 3 ? "1px solid rgba(255,255,255,0.4)" : "none",
+              }}
+            >
+              <div className="bebas" style={{ fontSize: 40, color: "#111" }}>
+                {n}
+              </div>
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "#fff",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.2em",
+                  fontWeight: 500,
+                }}
+              >
+                {l}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ABOUT */}
+      <section className="ws-section" style={{ background: "#F5F0E8", color: "#3D3D3D" }}>
+        <div className="ws-container">
+          <Reveal>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "60% 40%",
+                gap: isMobile ? 40 : 80,
+                alignItems: "center",
+              }}
+            >
+              {isMobile && (
+                <img
+                  src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&q=80"
+                  alt="Barber at work"
+                  style={{ width: "100%", height: 300, objectFit: "cover" }}
+                />
+              )}
+              <div>
+                <div className="eyebrow">WHO WE ARE</div>
+                <h2
+                  className="bebas"
+                  style={{
+                    fontSize: "clamp(40px, 5vw, 64px)",
+                    color: "#111",
+                    margin: "16px 0 28px",
+                    lineHeight: 1,
+                  }}
+                >
+                  A BARBERSHOP BUILT FOR THE MODERN MAN
+                </h2>
+                {[
+                  "Wonderstouch was born from one belief: every man deserves a great cut and a great experience. With locations in Umm Al Sheif, Dubai and Elgün Sokağı, Istanbul, we've built a two-city brotherhood of loyal clients who come back not just for the results — but for the ritual.",
+                  "Our 15+ internationally trained barbers specialise in precision fades, skin fades, scissor cuts, classic hot towel shaves, beard sculpting, and full grooming rituals. We use only premium men's grooming products — American Crew, Layrite, Proraso, and Wahl Professional — because your routine deserves nothing less.",
+                  "Whether you're a Dubai regular, an Istanbul local, or a man travelling between cities — walk in, sit down, and leave looking your sharpest. No fuss. Just craft.",
+                ].map((p, i) => (
+                  <p
+                    key={i}
+                    style={{
+                      fontSize: 15,
+                      color: "#3D3D3D",
+                      lineHeight: 1.85,
+                      margin: "0 0 18px",
+                    }}
+                  >
+                    {p}
+                  </p>
+                ))}
+                <hr style={{ border: "none", borderTop: "1px solid #D4AF37", margin: "30px 0" }} />
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                  {[
+                    "✦ Walk-ins Welcome",
+                    "✦ Premium Men's Products",
+                    "✦ 2 Global Locations",
+                  ].map((t) => (
+                    <span
+                      key={t}
+                      style={{
+                        border: "1px solid #D4AF37",
+                        color: "#D4AF37",
+                        padding: "8px 20px",
+                        fontSize: 10,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.2em",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              {!isMobile && (
+                <img
+                  src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&q=80"
+                  alt="Barber at work"
+                  style={{
+                    width: "100%",
+                    height: 540,
+                    objectFit: "cover",
+                    outline: "1px solid #D4AF37",
+                    outlineOffset: 14,
+                  }}
+                />
+              )}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* SERVICES */}
+      <section className="ws-section" style={{ background: "#111111" }}>
+        <div className="ws-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 60 }}>
+              <div className="eyebrow">WHAT WE OFFER</div>
+              <h2
+                className="bebas"
+                style={{
+                  fontSize: "clamp(36px, 5vw, 68px)",
+                  color: "#fff",
+                  margin: "16px 0 14px",
+                }}
+              >
+                OUR FULL GROOMING MENU
+              </h2>
+              <p style={{ fontSize: 15, color: "#E8E0D5", maxWidth: 600, margin: "0 auto" }}>
+                From a quick fade to a full grooming ritual — we do it all, with precision.
+              </p>
+            </div>
+          </Reveal>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+              gap: 2,
+            }}
+          >
+            {SERVICES.map((s) => (
+              <Reveal key={s.name}>
+                <div
+                  className="service-card"
+                  style={{
+                    position: "relative",
+                    aspectRatio: "3/4",
+                    overflow: "hidden",
+                    background: "#000",
+                  }}
+                >
+                  <img
+                    className="service-img"
+                    src={s.img}
+                    alt={s.name}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      transition: "transform 0.4s ease",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(to top, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0) 55%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  <div
+                    className="service-overlay"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "rgba(17,17,17,0.55)",
+                      borderTop: "3px solid #D4AF37",
+                      opacity: 0,
+                      transition: "opacity 0.3s ease",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: 24,
+                    }}
+                  >
+                    <p
+                      style={{
+                        color: "#E8E0D5",
+                        fontSize: 13,
+                        textAlign: "center",
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      {s.desc}
+                    </p>
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 24,
+                      left: 24,
+                      right: 24,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-end",
+                      zIndex: 2,
+                    }}
+                  >
+                    <div className="bebas" style={{ fontSize: 28, color: "#fff" }}>
+                      {s.name}
+                    </div>
+                    <ArrowRight size={16} color="#D4AF37" />
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 50 }}>
+            <GoldButton outlined>VIEW FULL GROOMING MENU →</GoldButton>
+          </div>
+        </div>
+      </section>
+
+      {/* GALLERY */}
+      <section className="ws-section" style={{ background: "#F5F0E8", color: "#3D3D3D" }}>
+        <div className="ws-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 50 }}>
+              <div className="eyebrow">OUR WORK</div>
+              <h2
+                className="bebas"
+                style={{
+                  fontSize: "clamp(36px, 5vw, 68px)",
+                  color: "#111",
+                  margin: "16px 0",
+                }}
+              >
+                THE CUTS SPEAK FOR THEMSELVES
+              </h2>
+            </div>
+          </Reveal>
+          <div
+            style={{
+              columnCount: isMobile ? 1 : 3,
+              columnGap: 10,
+            }}
+          >
+            {GALLERY.map((src, i) => (
+              <div
+                key={i}
+                className="gallery-item"
+                style={{
+                  breakInside: "avoid",
+                  marginBottom: 10,
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  className="gallery-img"
+                  src={src}
+                  alt={`Gallery ${i + 1}`}
+                  style={{
+                    width: "100%",
+                    display: "block",
+                    transition: "transform 0.3s ease",
+                  }}
+                />
+                <div
+                  className="gallery-overlay"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background: "rgba(212,175,55,0.18)",
+                    opacity: 0,
+                    transition: "opacity 0.3s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ZoomIn size={32} color="#fff" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              marginTop: 40,
+              fontSize: 13,
+              color: "#3D3D3D",
+            }}
+          >
+            <Instagram size={18} color="#D4AF37" />
+            <span>Follow our work on Instagram</span>
+            <span style={{ color: "#D4AF37", fontWeight: 600 }}>@wonderstouch</span>
+            <ArrowRight size={14} color="#D4AF37" />
+          </div>
+        </div>
+      </section>
+
+      {/* REVIEWS */}
+      <section className="ws-section" style={{ background: "#111111" }}>
+        <div className="ws-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 50 }}>
+              <div className="eyebrow">CLIENT LOVE</div>
+              <h2
+                className="bebas"
+                style={{
+                  fontSize: "clamp(36px, 5vw, 68px)",
+                  color: "#fff",
+                  margin: "16px 0 14px",
+                }}
+              >
+                OVER 1,000 FIVE-STAR REVIEWS
+              </h2>
+              <p style={{ fontSize: 15, color: "#E8E0D5" }}>
+                Two cities, one standard. Here's what our guys say.
+              </p>
+            </div>
+          </Reveal>
+          <div style={{ position: "relative", minHeight: 380 }}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={reviewIdx}
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                  gap: 24,
+                }}
+              >
+                {(isMobile ? [REVIEWS[reviewIdx]] : REVIEWS).map((r, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      background: "#1A1A1A",
+                      padding: "40px 36px",
+                      borderTop: "3px solid #D4AF37",
+                    }}
+                  >
+                    <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <Star key={j} size={14} fill="#D4AF37" color="#D4AF37" />
+                      ))}
+                    </div>
+                    <div className="bebas" style={{ fontSize: 52, color: "#D4AF37", lineHeight: 0.6 }}>
+                      ❝
+                    </div>
+                    <p
+                      style={{
+                        fontStyle: "italic",
+                        fontSize: 17,
+                        color: "#fff",
+                        lineHeight: 1.75,
+                        margin: "16px 0 28px",
+                      }}
+                    >
+                      {r.quote}
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: "50%",
+                          background: "#D4AF37",
+                          color: "#fff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontWeight: 700,
+                          fontSize: 14,
+                        }}
+                      >
+                        {r.initial}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, color: "#fff", fontWeight: 500 }}>{r.name}</div>
+                        <div style={{ fontSize: 11, color: "#888" }}>
+                          {r.where} • ★ Google Reviews
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <div
+            style={{ display: "flex", justifyContent: "center", gap: 10, marginTop: 32 }}
+          >
+            {REVIEWS.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setReviewIdx(i)}
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: reviewIdx === i ? "#D4AF37" : "#333",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  transition: "all 0.3s ease",
+                }}
+                aria-label={`Review ${i + 1}`}
+              />
+            ))}
+          </div>
+          <div
+            style={{
+              marginTop: 40,
+              display: "flex",
+              justifyContent: "center",
+              gap: 24,
+              flexWrap: "wrap",
+              fontSize: 12,
+              textTransform: "uppercase",
+              letterSpacing: "0.2em",
+              color: "#E8E0D5",
+            }}
+          >
+            <span>4.9 / 5 on Google</span>
+            <span style={{ color: "#D4AF37" }}>◆</span>
+            <span>1,000+ Men Served</span>
+            <span style={{ color: "#D4AF37" }}>◆</span>
+            <span>2 Cities</span>
+          </div>
+        </div>
+      </section>
+
+      {/* BARBERS */}
+      <section className="ws-section" style={{ background: "#F5F0E8", color: "#3D3D3D" }}>
+        <div className="ws-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 60 }}>
+              <div className="eyebrow">OUR BARBERS</div>
+              <h2
+                className="bebas"
+                style={{
+                  fontSize: "clamp(36px, 5vw, 68px)",
+                  color: "#111",
+                  margin: "16px 0 14px",
+                }}
+              >
+                SKILLED. SHARP. HERE FOR YOU.
+              </h2>
+              <p style={{ fontSize: 15, color: "#3D3D3D", maxWidth: 640, margin: "0 auto" }}>
+                Every Wonderstouch barber is internationally trained and hand-picked for their craft,
+                precision, and dedication to the trade.
+              </p>
+            </div>
+          </Reveal>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile
+                ? "1fr"
+                : `repeat(${typeof window !== "undefined" && window.innerWidth < 1024 ? 2 : 4}, 1fr)`,
+              gap: 36,
+            }}
+          >
+            {BARBERS.map((b) => (
+              <Reveal key={b.name}>
+                <div style={{ textAlign: "left" }}>
+                  <div className="barber-img-wrap" style={{ display: "inline-block" }}>
+                    <img
+                      src={b.img}
+                      alt={b.name}
+                      style={{
+                        width: 220,
+                        height: 220,
+                        objectFit: "cover",
+                        display: "block",
+                        transition: "outline 0.3s ease",
+                      }}
+                    />
+                  </div>
+                  <div className="bebas" style={{ fontSize: 26, color: "#111", marginTop: 18 }}>
+                    {b.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: "#D4AF37",
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      fontWeight: 600,
+                      marginTop: 4,
+                    }}
+                  >
+                    {b.title}
+                  </div>
+                  <p style={{ fontSize: 13, color: "#888", margin: "12px 0", lineHeight: 1.7 }}>
+                    {b.bio}
+                  </p>
+                  <a
+                    style={{
+                      fontSize: 12,
+                      color: "#D4AF37",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.18em",
+                      cursor: "pointer",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Book with {b.name} →
+                  </a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <div style={{ textAlign: "center", marginTop: 50 }}>
+            <GoldButton outlined>MEET THE FULL TEAM →</GoldButton>
+          </div>
+        </div>
+      </section>
+
+      {/* PRICING */}
+      <section className="ws-section" style={{ background: "#111111" }}>
+        <div className="ws-container">
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 40 }}>
+              <div className="eyebrow">TRANSPARENT PRICING</div>
+              <h2
+                className="bebas"
+                style={{
+                  fontSize: "clamp(36px, 5vw, 68px)",
+                  color: "#fff",
+                  margin: "16px 0 14px",
+                }}
+              >
+                NO HIDDEN COSTS. EVER.
+              </h2>
+              <p style={{ fontSize: 14, color: "#888", maxWidth: 600, margin: "0 auto 30px" }}>
+                Starting prices for men's grooming services. Dubai in AED (VAT inclusive). Istanbul in
+                EUR.
+              </p>
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <LocationPills location={location} setLocation={setLocation} size="md" />
+              </div>
+            </div>
+          </Reveal>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+              gap: 0,
+              marginTop: 40,
+            }}
+          >
+            {[
+              {
+                title: "ESSENTIALS",
+                priceD: "from AED 40",
+                priceI: "from €12",
+                desc: "Your everyday sharp-up, done right.",
+                items: PRICING.essentials,
+                bg: "#1A1A1A",
+                accent: "#D4AF37",
+                light: false,
+              },
+              {
+                title: "SIGNATURE",
+                priceD: "from AED 150",
+                priceI: "from €45",
+                desc: "Our most popular grooming combos — cut, beard, ritual.",
+                items: PRICING.signature,
+                bg: "#D4AF37",
+                accent: "#111",
+                light: true,
+                popular: true,
+              },
+              {
+                title: "PREMIUM",
+                priceD: "from AED 300",
+                priceI: "from €90",
+                desc: "Full transformations and specialist men's treatments.",
+                items: PRICING.premium,
+                bg: "#1A1A1A",
+                accent: "#D4AF37",
+                light: false,
+                bordered: true,
+              },
+            ].map((card) => (
+              <div
+                key={card.title}
+                style={{
+                  background: card.bg,
+                  padding: "48px 40px",
+                  border: card.bordered ? "1px solid #D4AF37" : "1px solid #2A2A2A",
+                  position: "relative",
+                }}
+              >
+                {card.popular && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 20,
+                      right: 20,
+                      background: "#fff",
+                      color: "#111",
+                      padding: "4px 12px",
+                      fontSize: 9,
+                      letterSpacing: "0.2em",
+                      textTransform: "uppercase",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Most Popular
+                  </div>
+                )}
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: card.light ? "#111" : "#D4AF37",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.25em",
+                    fontWeight: 600,
+                  }}
+                >
+                  {card.title}
+                </div>
+                <div
+                  className="bebas"
+                  style={{
+                    fontSize: 46,
+                    color: card.light ? "#111" : "#fff",
+                    margin: "12px 0 8px",
+                  }}
+                >
+                  {location === "dubai" ? card.priceD : card.priceI}
+                </div>
+                <p
+                  style={{
+                    fontSize: 13,
+                    color: card.light ? "rgba(0,0,0,0.65)" : "#888",
+                    margin: 0,
+                  }}
+                >
+                  {card.desc}
+                </p>
+                <div
+                  style={{
+                    height: 1,
+                    background: card.light ? "rgba(0,0,0,0.15)" : "#2A2A2A",
+                    margin: "28px 0",
+                  }}
+                />
+                {card.items.map(([name, dPrice, iPrice]) => (
+                  <div
+                    key={name}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 12,
+                      borderBottom: card.light
+                        ? "1px solid rgba(0,0,0,0.12)"
+                        : "1px solid #222",
+                      padding: "12px 0",
+                      fontSize: 14,
+                      color: card.light ? "#111" : "#E8E0D5",
+                    }}
+                  >
+                    <span>{name}</span>
+                    <span
+                      style={{
+                        color: card.light ? "#111" : "#D4AF37",
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {location === "dubai" ? dPrice : iPrice}
+                    </span>
+                  </div>
+                ))}
+                <div style={{ marginTop: 28 }}>
+                  {card.light ? (
+                    <button
+                      onClick={openBook}
+                      style={{
+                        background: "#111",
+                        color: "#fff",
+                        border: "none",
+                        padding: "14px 28px",
+                        fontSize: 11,
+                        letterSpacing: "0.18em",
+                        textTransform: "uppercase",
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        width: "100%",
+                        fontFamily: "Inter",
+                      }}
+                    >
+                      BOOK NOW
+                    </button>
+                  ) : (
+                    <GoldButton outlined onClick={openBook} full>
+                      BOOK NOW
+                    </GoldButton>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 11,
+              color: "#555",
+              marginTop: 30,
+            }}
+          >
+            * Starting prices for men's grooming services. Final cost confirmed at booking. VAT
+            inclusive for Dubai.
+          </p>
+        </div>
+      </section>
+
+      {/* OFFER BANNER */}
+      <section
+        style={{
+          minHeight: 300,
+          padding: "60px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          background:
+            "linear-gradient(135deg, #5C3D0A 0%, #D4AF37 50%, #5C3D0A 100%)",
+          backgroundSize: "200% 200%",
+          animation: "ws-shimmer 6s infinite",
+        }}
+      >
+        <div style={{ maxWidth: 900 }}>
+          <h2
+            className="bebas"
+            style={{
+              fontSize: "clamp(40px, 6vw, 72px)",
+              color: "#fff",
+              margin: 0,
+              lineHeight: 1.05,
+            }}
+          >
+            NEW TO WONDERSTOUCH? 20% OFF YOUR FIRST CUT
+          </h2>
+          <p
+            style={{
+              fontSize: 14,
+              color: "rgba(255,255,255,0.85)",
+              marginTop: 18,
+              lineHeight: 1.7,
+            }}
+          >
+            Valid for new male clients at both our Dubai and Istanbul barbershops. No code needed —
+            just mention it when you WhatsApp to book your chair.
+          </p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: 16,
+              marginTop: 32,
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              onClick={openBook}
+              style={{
+                background: "#111",
+                color: "#fff",
+                border: "none",
+                padding: "15px 36px",
+                fontSize: 11,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                fontFamily: "Inter",
+              }}
+            >
+              <MessageCircle size={16} color="#25D366" />
+              BOOK ON WHATSAPP
+            </button>
+            <button
+              style={{
+                background: "transparent",
+                color: "#fff",
+                border: "1.5px solid #fff",
+                padding: "15px 36px",
+                fontSize: 11,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "Inter",
+              }}
+            >
+              CALL TO BOOK
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* LOCATIONS & CONTACT */}
+      <section className="ws-section" style={{ background: "#F5F0E8", color: "#3D3D3D" }}>
+        <div className="ws-container">
+          <Reveal>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "55% 45%",
+                gap: isMobile ? 40 : 80,
+              }}
+            >
+              <div>
+                <div className="eyebrow">FIND US</div>
+                <h2
+                  className="bebas"
+                  style={{
+                    fontSize: "clamp(36px, 5vw, 68px)",
+                    color: "#111",
+                    margin: "16px 0 24px",
+                  }}
+                >
+                  VISIT WONDERSTOUCH
+                </h2>
+                <LocationPills location={location} setLocation={setLocation} size="md" />
+                <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 18 }}>
+                  {[
+                    { Icon: MapPin, color: "#D4AF37", text: loc.address },
+                    { Icon: Phone, color: "#D4AF37", text: loc.phone },
+                    { Icon: Clock, color: "#D4AF37", text: loc.hours },
+                    {
+                      Icon: MessageCircle,
+                      color: "#25D366",
+                      text: `WhatsApp: ${loc.whatsapp}`,
+                    },
+                  ].map(({ Icon, color, text }, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                      <Icon size={20} color={color} />
+                      <span style={{ fontSize: 15, color: "#3D3D3D" }}>{text}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: 12, marginTop: 32, flexWrap: "wrap" }}>
+                  <button
+                    style={{
+                      background: "#D4AF37",
+                      color: "#111",
+                      border: "none",
+                      padding: "14px 28px",
+                      fontSize: 11,
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    CALL NOW
+                  </button>
+                  <button
+                    style={{
+                      background: "transparent",
+                      color: "#D4AF37",
+                      border: "1.5px solid #D4AF37",
+                      padding: "14px 28px",
+                      fontSize: 11,
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontFamily: "Inter",
+                    }}
+                  >
+                    GET DIRECTIONS <ExternalLink size={14} />
+                  </button>
+                </div>
+              </div>
+              <div
+                style={{
+                  height: 380,
+                  background: "#1A1A1A",
+                  border: "1px solid #D4AF37",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  textAlign: "center",
+                  padding: 30,
+                }}
+              >
+                <MapPin size={48} color="#D4AF37" />
+                <div className="bebas" style={{ fontSize: 30, color: "#fff", marginTop: 16 }}>
+                  WONDERSTOUCH
+                </div>
+                <div style={{ fontSize: 13, color: "#888", marginTop: 6 }}>{loc.mapLabel}</div>
+                <button
+                  style={{
+                    marginTop: 24,
+                    background: "transparent",
+                    color: "#D4AF37",
+                    border: "1.5px dotted #D4AF37",
+                    padding: "12px 24px",
+                    fontSize: 11,
+                    letterSpacing: "0.18em",
+                    textTransform: "uppercase",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "Inter",
+                  }}
+                >
+                  OPEN IN GOOGLE MAPS →
+                </button>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ background: "#0D0D0D", padding: isMobile ? "60px 20px 30px" : "80px 80px 36px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr 1fr 1fr",
+              gap: 48,
+            }}
+          >
+            <div>
+              <div
+                className="bebas"
+                style={{ fontSize: 30, color: "#D4AF37", letterSpacing: "0.2em" }}
+              >
+                WONDERSTOUCH
+              </div>
+              <div
+                style={{
+                  fontSize: 9,
+                  color: "#555",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.25em",
+                  marginTop: 4,
+                }}
+              >
+                GROOMING • BARBERSHOP
+              </div>
+              <div className="bebas" style={{ fontSize: 18, color: "#888", marginTop: 14 }}>
+                YOUR LOOK. OUR CRAFT.
+              </div>
+              <div style={{ display: "flex", gap: 16, marginTop: 24 }}>
+                {[Instagram, Facebook, MessageCircle, Youtube].map((Icon, i) => (
+                  <Icon
+                    key={i}
+                    size={18}
+                    className="social-icon"
+                    color="#D4AF37"
+                    style={{ cursor: "pointer", transition: "all 0.3s ease" }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {[
+              {
+                title: "SERVICES",
+                items: [
+                  "Haircut & Styling",
+                  "Beard Trim",
+                  "Hot Towel Shave",
+                  "Hair Colour",
+                  "Grooming Packages",
+                  "Scalp Treatments",
+                  "Boys' Haircuts",
+                  "VIP Packages",
+                ],
+              },
+              {
+                title: "EXPLORE",
+                items: [
+                  "Home",
+                  "About",
+                  "Our Work",
+                  "Meet the Barbers",
+                  "Pricing",
+                  "Dubai",
+                  "Istanbul",
+                  "Contact",
+                ],
+              },
+              {
+                title: "GET IN TOUCH",
+                items: [
+                  "Umm Al Sheif, Dubai",
+                  "Elgün Sokağı, Istanbul",
+                  "hello@wonderstouch.com",
+                  "Sat–Sun: 9am – 10pm",
+                ],
+              },
+            ].map((col) => (
+              <div key={col.title}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "#D4AF37",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.25em",
+                    fontWeight: 600,
+                    marginBottom: 18,
+                  }}
+                >
+                  {col.title}
+                </div>
+                {col.items.map((it) => (
+                  <div
+                    key={it}
+                    className="footer-link"
+                    style={{
+                      fontSize: 13,
+                      color: "#666",
+                      lineHeight: 2.2,
+                      cursor: "pointer",
+                      transition: "color 0.3s ease",
+                    }}
+                  >
+                    {it}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div style={{ height: 1, background: "#1E1E1E", margin: "48px 0 24px" }} />
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              gap: 12,
+              fontSize: 11,
+              color: "#444",
+            }}
+          >
+            <div>© 2026 Wonderstouch. All Rights Reserved.</div>
+            <div style={{ display: "flex", gap: 16 }}>
+              <span className="footer-link" style={{ cursor: "pointer", transition: "color 0.3s" }}>
+                Privacy Policy
+              </span>
+              <span className="footer-link" style={{ cursor: "pointer", transition: "color 0.3s" }}>
+                Terms & Conditions
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* FLOATING WHATSAPP */}
+      {isMobile && (
+        <button
+          onClick={openBook}
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 20,
+            background: "#25D366",
+            color: "#fff",
+            border: "none",
+            borderRadius: 50,
+            padding: "13px 22px",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            fontSize: 12,
+            textTransform: "uppercase",
+            letterSpacing: "0.15em",
+            fontWeight: 600,
+            cursor: "pointer",
+            zIndex: 999,
+            animation: "ws-pulse 2.5s infinite",
+            fontFamily: "Inter",
+          }}
+        >
+          <MessageCircle size={18} />
+          BOOK NOW
+        </button>
+      )}
+
+      {/* BOOKING MODAL */}
+      <BookingModal
+        open={bookOpen}
+        onClose={() => setBookOpen(false)}
+        location={location}
+        setLocation={setLocation}
       />
     </div>
   );
 }
 
-function Index() {
-  return <PlaceholderIndex />;
+function BookingModal({
+  open,
+  onClose,
+  location,
+  setLocation,
+}: {
+  open: boolean;
+  onClose: () => void;
+  location: LocationKey;
+  setLocation: (l: LocationKey) => void;
+}) {
+  const [step, setStep] = useState(0);
+  const [service, setService] = useState<string | null>(null);
+  const [barber, setBarber] = useState<string | null>(null);
+  const [date, setDate] = useState<string | null>(null);
+  const [time, setTime] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setStep(0);
+        setService(null);
+        setBarber(null);
+        setDate(null);
+        setTime(null);
+        setName("");
+        setPhone("");
+      }, 300);
+    }
+  }, [open]);
+
+  const next = () => setStep((s) => s + 1);
+  const back = () => setStep((s) => Math.max(0, s - 1));
+
+  const days = Array.from({ length: 14 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+  const times = ["10:00", "11:30", "13:00", "14:30", "16:00", "17:30", "19:00"];
+
+  const summary = `Booking at Wonderstouch ${LOCATIONS[location].label}\nService: ${service}\nBarber: ${barber}\nDate: ${date}\nTime: ${time}\nName: ${name}\nPhone: ${phone}`;
+  const waLink = `https://wa.me/${LOCATIONS[location].whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(summary)}`;
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.85)",
+            zIndex: 3000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 20,
+          }}
+        >
+          <motion.div
+            initial={{ scale: 0.95, y: 30 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.95, y: 30 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: step === 5 ? "#D4AF37" : "#1A1A1A",
+              color: step === 5 ? "#111" : "#fff",
+              maxWidth: 560,
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: "40px 36px",
+              border: "1px solid #D4AF37",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={onClose}
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                background: "transparent",
+                border: "none",
+                color: step === 5 ? "#111" : "#D4AF37",
+                cursor: "pointer",
+              }}
+            >
+              <X size={24} />
+            </button>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={step}
+                initial={{ x: 60, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -60, opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {step === 0 && (
+                  <div>
+                    <div className="eyebrow" style={{ color: "#D4AF37" }}>STEP 1 / 5</div>
+                    <h3 className="bebas" style={{ fontSize: 38, margin: "10px 0 24px", color: "#fff" }}>
+                      CHOOSE YOUR LOCATION
+                    </h3>
+                    {(["dubai", "istanbul"] as LocationKey[]).map((k) => (
+                      <button
+                        key={k}
+                        onClick={() => {
+                          setLocation(k);
+                          next();
+                        }}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "20px",
+                          background: location === k ? "#D4AF37" : "transparent",
+                          color: location === k ? "#111" : "#fff",
+                          border: "1px solid #D4AF37",
+                          marginBottom: 12,
+                          cursor: "pointer",
+                          fontSize: 16,
+                          fontFamily: "Inter",
+                          fontWeight: 500,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>{LOCATIONS[k].flag} {LOCATIONS[k].label}</span>
+                        <ChevronRight size={20} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {step === 1 && (
+                  <div>
+                    <div className="eyebrow">STEP 2 / 5</div>
+                    <h3 className="bebas" style={{ fontSize: 38, margin: "10px 0 24px", color: "#fff" }}>
+                      CHOOSE A SERVICE
+                    </h3>
+                    {SERVICES.map((s) => (
+                      <button
+                        key={s.name}
+                        onClick={() => {
+                          setService(s.name);
+                          next();
+                        }}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "16px 20px",
+                          background: service === s.name ? "#D4AF37" : "transparent",
+                          color: service === s.name ? "#111" : "#E8E0D5",
+                          border: "1px solid #333",
+                          marginBottom: 8,
+                          cursor: "pointer",
+                          fontSize: 14,
+                          fontFamily: "Inter",
+                        }}
+                      >
+                        {s.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {step === 2 && (
+                  <div>
+                    <div className="eyebrow">STEP 3 / 5</div>
+                    <h3 className="bebas" style={{ fontSize: 38, margin: "10px 0 24px", color: "#fff" }}>
+                      CHOOSE YOUR BARBER
+                    </h3>
+                    {[...BARBERS.map((b) => b.name), "No preference"].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => {
+                          setBarber(n);
+                          next();
+                        }}
+                        style={{
+                          width: "100%",
+                          textAlign: "left",
+                          padding: "16px 20px",
+                          background: barber === n ? "#D4AF37" : "transparent",
+                          color: barber === n ? "#111" : "#E8E0D5",
+                          border: "1px solid #333",
+                          marginBottom: 8,
+                          cursor: "pointer",
+                          fontSize: 14,
+                          fontFamily: "Inter",
+                        }}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {step === 3 && (
+                  <div>
+                    <div className="eyebrow">STEP 4 / 5</div>
+                    <h3 className="bebas" style={{ fontSize: 38, margin: "10px 0 24px", color: "#fff" }}>
+                      PICK DATE & TIME
+                    </h3>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(7, 1fr)",
+                        gap: 6,
+                        marginBottom: 20,
+                      }}
+                    >
+                      {days.map((d) => {
+                        const label = `${d.toLocaleDateString("en", { weekday: "short" })} ${d.getDate()}`;
+                        const sel = date === label;
+                        return (
+                          <button
+                            key={label}
+                            onClick={() => setDate(label)}
+                            style={{
+                              padding: "10px 4px",
+                              background: sel ? "#D4AF37" : "#222",
+                              color: sel ? "#111" : "#E8E0D5",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: 11,
+                              fontFamily: "Inter",
+                              fontWeight: sel ? 700 : 400,
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(4, 1fr)",
+                        gap: 8,
+                      }}
+                    >
+                      {times.map((t) => {
+                        const sel = time === t;
+                        return (
+                          <button
+                            key={t}
+                            onClick={() => setTime(t)}
+                            style={{
+                              padding: 12,
+                              background: sel ? "#D4AF37" : "#222",
+                              color: sel ? "#111" : "#E8E0D5",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: 13,
+                              fontFamily: "Inter",
+                              fontWeight: sel ? 700 : 400,
+                            }}
+                          >
+                            {t}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
+                      <button
+                        onClick={back}
+                        style={{
+                          flex: 1,
+                          padding: "14px",
+                          background: "transparent",
+                          color: "#D4AF37",
+                          border: "1px solid #D4AF37",
+                          cursor: "pointer",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.15em",
+                          fontSize: 11,
+                        }}
+                      >
+                        <ChevronLeft size={14} style={{ verticalAlign: "middle" }} /> Back
+                      </button>
+                      <button
+                        onClick={next}
+                        disabled={!date || !time}
+                        style={{
+                          flex: 2,
+                          padding: "14px",
+                          background: !date || !time ? "#444" : "#D4AF37",
+                          color: "#111",
+                          border: "none",
+                          cursor: !date || !time ? "not-allowed" : "pointer",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.15em",
+                          fontSize: 11,
+                          fontWeight: 700,
+                        }}
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {step === 4 && (
+                  <div>
+                    <div className="eyebrow">STEP 5 / 5</div>
+                    <h3 className="bebas" style={{ fontSize: 38, margin: "10px 0 24px", color: "#fff" }}>
+                      YOUR DETAILS
+                    </h3>
+                    <input
+                      placeholder="Your name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: 14,
+                        background: "#222",
+                        border: "1px solid #333",
+                        color: "#fff",
+                        marginBottom: 12,
+                        fontSize: 14,
+                        fontFamily: "Inter",
+                      }}
+                    />
+                    <input
+                      placeholder="WhatsApp number"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: 14,
+                        background: "#222",
+                        border: "1px solid #333",
+                        color: "#fff",
+                        marginBottom: 20,
+                        fontSize: 14,
+                        fontFamily: "Inter",
+                      }}
+                    />
+                    <div
+                      style={{
+                        background: "#0F0F0F",
+                        padding: 20,
+                        border: "1px solid #2A2A2A",
+                        marginBottom: 20,
+                        fontSize: 13,
+                        color: "#888",
+                        lineHeight: 1.9,
+                      }}
+                    >
+                      <div>📍 {LOCATIONS[location].label}</div>
+                      <div>✂ {service}</div>
+                      <div>👤 {barber}</div>
+                      <div>📅 {date} @ {time}</div>
+                    </div>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <button
+                        onClick={back}
+                        style={{
+                          flex: 1,
+                          padding: 14,
+                          background: "transparent",
+                          color: "#D4AF37",
+                          border: "1px solid #D4AF37",
+                          cursor: "pointer",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.15em",
+                          fontSize: 11,
+                        }}
+                      >
+                        Back
+                      </button>
+                      <button
+                        onClick={next}
+                        disabled={!name || !phone}
+                        style={{
+                          flex: 2,
+                          padding: 14,
+                          background: !name || !phone ? "#444" : "#D4AF37",
+                          color: "#111",
+                          border: "none",
+                          cursor: !name || !phone ? "not-allowed" : "pointer",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.15em",
+                          fontSize: 11,
+                          fontWeight: 700,
+                        }}
+                      >
+                        Confirm Booking
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {step === 5 && (
+                  <div style={{ textAlign: "center" }}>
+                    <h3 className="bebas" style={{ fontSize: 48, color: "#111", margin: "10px 0 20px" }}>
+                      YOUR CHAIR IS RESERVED.
+                    </h3>
+                    <div
+                      style={{
+                        background: "rgba(0,0,0,0.08)",
+                        padding: 20,
+                        marginBottom: 24,
+                        textAlign: "left",
+                        fontSize: 14,
+                        color: "#111",
+                        lineHeight: 2,
+                      }}
+                    >
+                      <div><b>Location:</b> Wonderstouch {LOCATIONS[location].label}</div>
+                      <div><b>Service:</b> {service}</div>
+                      <div><b>Barber:</b> {barber}</div>
+                      <div><b>Date:</b> {date} @ {time}</div>
+                      <div><b>Name:</b> {name}</div>
+                      <div><b>WhatsApp:</b> {phone}</div>
+                    </div>
+                    <a
+                      href={waLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 10,
+                        background: "#111",
+                        color: "#fff",
+                        padding: "16px 32px",
+                        textDecoration: "none",
+                        fontSize: 12,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.18em",
+                        fontWeight: 700,
+                      }}
+                    >
+                      <MessageCircle size={16} color="#25D366" />
+                      Confirm on WhatsApp
+                    </a>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }
