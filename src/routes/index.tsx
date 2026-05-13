@@ -94,12 +94,11 @@ const LOCATIONS: Record<
 };
 
 const NAV_LINKS = [
-  "SERVICES",
-  "OUR BARBERS",
-  "GALLERY",
-  "PACKAGES",
-  "LOCATIONS",
-  "CONTACT",
+  "Home",
+  "Shop",
+  "About Us",
+  "Blog",
+  "Contact",
 ];
 
 const SERVICES = [
@@ -373,7 +372,7 @@ function Wonderstouch() {
       * { box-sizing: border-box; }
       .bebas { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
       .eyebrow { font-family:'Inter',sans-serif; font-size:11px; text-transform:uppercase; letter-spacing:0.28em; color:#D4AF37; font-weight:500; }
-      .ws-nav-link { position:relative; display:inline-block; padding:6px 0; color:#E8E0D5; text-decoration:none; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; font-family:'Inter',sans-serif; transition:color 0.3s ease; cursor:pointer;}
+      .ws-nav-link { position:relative; display:inline-block; padding:6px 0; color:#E8E0D5; text-decoration:none; font-size:14px; letter-spacing:0.05em; font-family:'Inter',sans-serif; transition:color 0.3s ease; cursor:pointer;}
       .ws-nav-link::after { content:''; position:absolute; left:0; bottom:0; height:1px; width:0; background:#D4AF37; transition: width 0.3s ease;}
       .ws-nav-link:hover { color:#D4AF37; }
       .ws-nav-link:hover::after { width:100%; }
