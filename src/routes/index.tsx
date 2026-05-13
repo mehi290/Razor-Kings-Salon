@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, Fragment } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
@@ -972,14 +972,14 @@ function Wonderstouch() {
       </section>
 
       {/* GOLD STATS BAR */}
-      <section style={{ background: "#D4AF37", padding: "24px 40px" }}>
+      <section style={{ background: "#D4AF37", padding: "10px 40px" }}>
         <div
           style={{
             maxWidth: 1200,
             margin: "0 auto",
             display: "grid",
             gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
-            gap: 20,
+            gap: 15,
           }}
         >
           {[
@@ -995,21 +995,113 @@ function Wonderstouch() {
                 borderRight: !isMobile && i < 3 ? "1px solid rgba(255,255,255,0.4)" : "none",
               }}
             >
-              <div className="bebas" style={{ fontSize: 40, color: "#111" }}>
+              <div className="bebas" style={{ fontSize: 28, color: "#111" }}>
                 {n}
               </div>
               <div
                 style={{
-                  fontSize: 10,
+                  fontSize: 8,
                   color: "#fff",
                   textTransform: "uppercase",
                   letterSpacing: "0.2em",
                   fontWeight: 500,
+                  marginTop: -4,
                 }}
               >
                 {l}
               </div>
             </div>
+          ))}
+        </div>
+      </section>
+      <section style={{ background: "#FDFCFB", padding: "60px 0", overflow: "hidden" }}>
+        <div className="ws-container" style={{ marginBottom: 30 }}>
+          <h2 className="bebas" style={{ fontSize: "clamp(32px, 4vw, 48px)", color: "#111" }}>
+            PREMIUM SERVICES
+          </h2>
+        </div>
+
+        <style>
+          {`
+            @keyframes scrollServices {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .services-marquee {
+              display: flex;
+              width: max-content;
+              animation: scrollServices 40s linear infinite;
+              padding: 15px 0;
+            }
+            .service-card {
+              flex: 0 0 260px;
+              height: 320px;
+              margin: 0 10px;
+              position: relative;
+              border-radius: 4px;
+              overflow: hidden;
+              display: flex;
+              flex-direction: column;
+              justify-content: flex-end;
+              padding: 20px;
+              background-size: cover;
+              background-position: center;
+              transition: transform 0.4s ease;
+            }
+            .service-card:hover {
+              transform: translateY(-8px);
+            }
+            .service-card::after {
+              content: '';
+              position: absolute;
+              inset: 0;
+              background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.9) 100%);
+              z-index: 1;
+            }
+            .service-content {
+              position: relative;
+              z-index: 2;
+            }
+          `}
+        </style>
+
+        <div className="services-marquee">
+          {[...Array(2)].map((_, i) => (
+            <Fragment key={i}>
+              {[
+                { name: "Hair Cut", img: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&q=80" },
+                { name: "Braids", img: "https://images.unsplash.com/photo-1620331711123-2895f9c4613c?w=500&q=80" },
+                { name: "Hair Perm & Styling", img: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=500&q=80" },
+                { name: "Grooming Packages", img: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80" },
+                { name: "Beard Trimming", img: "https://images.unsplash.com/photo-1590540179852-2110a54f813a?w=500&q=80" },
+                { name: "Manicure", img: "https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=500&q=80" },
+                { name: "Pedicure", img: "https://images.unsplash.com/photo-1595121685340-a1993416629d?w=500&q=80" },
+                { name: "Facial Treatment", img: "https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=500&q=80" },
+                { name: "Hair Removal", img: "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=500&q=80" },
+              ].map((s, idx) => (
+                <div key={idx} className="service-card" style={{ backgroundImage: `url(${s.img})` }}>
+                  <div className="service-content">
+                    <h3 className="bebas" style={{ fontSize: 32, color: "#fff", margin: "0 0 15px" }}>{s.name}</h3>
+                    <button
+                      onClick={openBook}
+                      style={{
+                        background: "#D4AF37",
+                        color: "#fff",
+                        border: "none",
+                        padding: "10px 20px",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                        letterSpacing: "0.1em",
+                        cursor: "pointer",
+                        borderRadius: "2px"
+                      }}
+                    >
+                      BOOK NOW
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </Fragment>
           ))}
         </div>
       </section>
