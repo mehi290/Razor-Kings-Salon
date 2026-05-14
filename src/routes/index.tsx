@@ -898,7 +898,7 @@ function Wonderstouch() {
             objectFit: "cover",
           }}
         >
-          <source src="/heromen.mp4" type="video/mp4" />
+          <source src="/main hero.mp4" type="video/mp4" />
         </video>
         <div
           style={{
@@ -1133,8 +1133,8 @@ function Wonderstouch() {
                 { name: "Kids Hair Cut", video: "/baby men hair cut.mp4" },
                 { name: "Medium Fade Hair Cut", video: "/medium fade hair cut men.mp4" },
                 { name: "Skin Fade Haircut", video: "/skin fade hair cut.mp4" },
-                { name: "Twist Braids", video: "/twist braids.mp4" },
-                { name: "Cornrow Braids", video: "/cornrow briads men.mp4" },
+                { name: "Twist Braids", video: "/cornrow-braids-men.mp4" },
+                { name: "Cornrow Braids", video: "/cornrow-braids-men.mp4" },
                 { name: "Hair Perm & Styling", video: "/perm hairstyle.mp4" },
                 { name: "Grooming Packages", video: "/groooming package.mp4" },
                 { name: "Beard Trimming", video: "/beard lineup .mp4" },
@@ -1158,7 +1158,7 @@ function Wonderstouch() {
                         zIndex: 0
                       }}
                     >
-                      <source src={s.video ? encodeURI(s.video) : ""} type="video/mp4" />
+                      <source src={s.video || ""} type="video/mp4" />
                     </video>
                   )}
                   <div className="service-content">
