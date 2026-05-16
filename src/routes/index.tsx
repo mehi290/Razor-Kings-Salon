@@ -318,6 +318,8 @@ function VyneBarbershop() {
     el.addEventListener("mouseleave", handleMouseLeave);
     el.addEventListener("touchstart", handleMouseEnter);
     el.addEventListener("touchend", handleMouseLeave);
+    el.addEventListener("ws-pause", handleMouseEnter);
+    el.addEventListener("ws-resume", handleMouseLeave);
 
     rafId = requestAnimationFrame(scroll);
     return () => {
@@ -326,6 +328,8 @@ function VyneBarbershop() {
       el.removeEventListener("mouseleave", handleMouseLeave);
       el.removeEventListener("touchstart", handleMouseEnter);
       el.removeEventListener("touchend", handleMouseLeave);
+      el.removeEventListener("ws-pause", handleMouseEnter);
+      el.removeEventListener("ws-resume", handleMouseLeave);
     };
   }, []);
 
@@ -358,6 +362,8 @@ function VyneBarbershop() {
     el.addEventListener("mouseleave", handleMouseLeave);
     el.addEventListener("touchstart", handleMouseEnter);
     el.addEventListener("touchend", handleMouseLeave);
+    el.addEventListener("ws-pause", handleMouseEnter);
+    el.addEventListener("ws-resume", handleMouseLeave);
 
     rafId = requestAnimationFrame(scroll);
     return () => {
@@ -366,6 +372,8 @@ function VyneBarbershop() {
       el.removeEventListener("mouseleave", handleMouseLeave);
       el.removeEventListener("touchstart", handleMouseEnter);
       el.removeEventListener("touchend", handleMouseLeave);
+      el.removeEventListener("ws-pause", handleMouseEnter);
+      el.removeEventListener("ws-resume", handleMouseLeave);
     };
   }, []);
 
@@ -636,7 +644,7 @@ function VyneBarbershop() {
         <div className="desktop-only" style={{ display: "flex", alignItems: "center", gap: 16 }}>
 
           <button
-            onClick={openBook}
+            onClick={() => openBook()}
             style={{
               border: "1.5px solid #D4AF37",
               background: "transparent",
@@ -870,7 +878,7 @@ function VyneBarbershop() {
 
           <Reveal delay={240}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 28, marginTop: 36, flexWrap: "wrap" }}>
-              <GoldButton onClick={openBook}>Book Appointment</GoldButton>
+              <GoldButton onClick={() => openBook()}>Book Appointment</GoldButton>
             </div>
           </Reveal>
         </div>
@@ -939,21 +947,20 @@ function VyneBarbershop() {
             maxWidth: 1200,
             margin: "0 auto",
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
+            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
             gap: 15,
           }}
         >
           {[
             ["15+", "Expert Barbers"],
             ["79+", "Happy Clients"],
-            ["Ajman", "Flagship Location"],
             ["4.9 ★", "Google Rating"],
           ].map(([n, l], i) => (
             <div
               key={l}
               style={{
                 textAlign: "center",
-                borderRight: !isMobile && i < 3 ? "1px solid rgba(255,255,255,0.4)" : "none",
+                borderRight: !isMobile && i < 2 ? "1px solid rgba(255,255,255,0.4)" : "none",
               }}
             >
               <div className="bebas" style={{ fontSize: 28, color: "#111" }}>
@@ -993,8 +1000,14 @@ function VyneBarbershop() {
             width: 80, height: "100%", border: "none", background: "linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)",
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "opacity 0.3s"
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+            document.getElementById("services-scroll")?.dispatchEvent(new CustomEvent("ws-pause"));
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.7";
+            document.getElementById("services-scroll")?.dispatchEvent(new CustomEvent("ws-resume"));
+          }}
         >
           <ChevronLeft size={48} color="#fff" />
         </button>
@@ -1009,8 +1022,14 @@ function VyneBarbershop() {
             width: 80, height: "100%", border: "none", background: "linear-gradient(-90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 100%)",
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "opacity 0.3s"
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+            document.getElementById("services-scroll")?.dispatchEvent(new CustomEvent("ws-pause"));
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.7";
+            document.getElementById("services-scroll")?.dispatchEvent(new CustomEvent("ws-resume"));
+          }}
         >
           <ChevronRight size={48} color="#fff" />
         </button>
@@ -1125,7 +1144,7 @@ function VyneBarbershop() {
         <div className="ws-container">
           <div style={{ textAlign: "center", marginBottom: 60 }}>
             <h2 className="bebas" style={{ fontSize: "clamp(32px, 4vw, 48px)", color: "#fff", marginBottom: 15 }}>
-              Clients Love
+              WHAT OUR CUSTOMERS SAY
             </h2>
             <div style={{ width: 60, height: 2, background: "#D4AF37", margin: "0 auto 20px" }} />
             <p style={{ color: "#888", fontSize: 15, maxWidth: 700, margin: "0 auto", lineHeight: 1.6 }}>
@@ -1133,9 +1152,10 @@ function VyneBarbershop() {
               satisfaction in every service. Here's what our guys say.  </p>
           </div>
 
-          {/* Reviews Carousel */}
           <div style={{ position: "relative" }}>
             <button
+              onMouseEnter={() => document.getElementById("reviews-scroll")?.dispatchEvent(new CustomEvent("ws-pause"))}
+              onMouseLeave={() => document.getElementById("reviews-scroll")?.dispatchEvent(new CustomEvent("ws-resume"))}
               onClick={() => {
                 const el = document.getElementById("reviews-scroll");
                 if (el) el.scrollBy({ left: -400, behavior: "smooth" });
@@ -1150,6 +1170,8 @@ function VyneBarbershop() {
             </button>
 
             <button
+              onMouseEnter={() => document.getElementById("reviews-scroll")?.dispatchEvent(new CustomEvent("ws-pause"))}
+              onMouseLeave={() => document.getElementById("reviews-scroll")?.dispatchEvent(new CustomEvent("ws-resume"))}
               onClick={() => {
                 const el = document.getElementById("reviews-scroll");
                 if (el) el.scrollBy({ left: 400, behavior: "smooth" });
@@ -1235,79 +1257,79 @@ function VyneBarbershop() {
       <section id="about" className="ws-section" style={{ background: "#F5F0E8", color: "#3D3D3D", padding: "80px 0 20px" }}>
         <div className="ws-container">
           <Reveal>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: isMobile ? "1fr" : "60% 40%",
-                gap: isMobile ? 40 : 80,
-                alignItems: "center",
-              }}
-            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: isMobile ? "1fr" : "60% 40%",
+                  gap: isMobile ? 40 : 80,
+                  alignItems: "center",
+                }}
+              >
 
-              <div>
-                <h2
-                  className="bebas"
-                  style={{
-                    fontSize: "clamp(32px, 4vw, 48px)",
-                    color: "#111",
-                    margin: "0 0 20px",
-                    lineHeight: 1,
-                  }}
-                >
-                  About vyne-barbershop
-                </h2>
-                {[
-                  "VYNE BARBERSHOP wasn’t built to be just another barbershop, it was built to be yours.",
-                  "Based in Ajman. 15+ internationally trained barbers. One standard: leave looking your sharpest.",
-                  "Walk in. Sit down. Leave sharp.",
-                ].map((p, i) => (
-                  <p
-                    key={i}
+                <div>
+                  <h2
+                    className="bebas"
                     style={{
-                      fontSize: 15,
-                      color: "#3D3D3D",
-                      lineHeight: 1.85,
-                      margin: "0 0 14px",
+                      fontSize: "clamp(32px, 4vw, 48px)",
+                      color: "#111",
+                      margin: "0 0 20px",
+                      lineHeight: 1,
                     }}
                   >
-                    {p}
-                  </p>
-                ))}
-
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 25 }}>
+                    About vyne-barbershop
+                  </h2>
                   {[
-                    "✦ Walk-ins Welcome",
-                    "✦ Premium Men's Products",
-                  ].map((t) => (
-                    <span
-                      key={t}
+                    "VYNE BARBERSHOP wasn’t built to be just another barbershop, it was built to be yours.",
+                    "Based in Ajman. 15+ internationally trained barbers. One standard: leave looking your sharpest.",
+                    "Walk in. Sit down. Leave sharp.",
+                  ].map((p, i) => (
+                    <p
+                      key={i}
                       style={{
-                        border: "1px solid #D4AF37",
-                        color: "#D4AF37",
-                        padding: "8px 20px",
-                        fontSize: 10,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.2em",
-                        fontWeight: "bold",
+                        fontSize: 15,
+                        color: "#3D3D3D",
+                        lineHeight: 1.85,
+                        margin: "0 0 14px",
                       }}
                     >
-                      {t}
-                    </span>
+                      {p}
+                    </p>
                   ))}
+
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 25 }}>
+                    {[
+                      "✦ Walk-ins Welcome",
+                      "✦ Premium Men's Products",
+                    ].map((t) => (
+                      <span
+                        key={t}
+                        style={{
+                          border: "1px solid #D4AF37",
+                          color: "#D4AF37",
+                          padding: "8px 20px",
+                          fontSize: 10,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.2em",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+                <img
+                  src="/vyne about us.jpeg"
+                  alt="About VYNE BARBERSHOP"
+                  style={{
+                    width: "100%",
+                    height: isMobile ? 300 : 540,
+                    objectFit: "cover",
+                    outline: "1px solid #D4AF37",
+                    outlineOffset: isMobile ? 10 : 14,
+                  }}
+                />
               </div>
-              <img
-                src="/vyne about us.jpeg"
-                alt="About VYNE BARBERSHOP"
-                style={{
-                  width: "100%",
-                  height: isMobile ? 300 : 540,
-                  objectFit: "cover",
-                  outline: "1px solid #D4AF37",
-                  outlineOffset: isMobile ? 10 : 14,
-                }}
-              />
-            </div>
           </Reveal>
         </div>
       </section>
@@ -1579,7 +1601,7 @@ function VyneBarbershop() {
                 <div style={{ marginTop: 28 }}>
                   {card.light ? (
                     <button
-                      onClick={openBook}
+                      onClick={() => openBook()}
                       style={{
                         background: "#111",
                         color: "#fff",
@@ -1597,7 +1619,7 @@ function VyneBarbershop() {
                       BOOK NOW
                     </button>
                   ) : (
-                    <GoldButton outlined onClick={openBook} full>
+                    <GoldButton outlined onClick={() => openBook()} full>
                       BOOK NOW
                     </GoldButton>
                   )}
@@ -1657,7 +1679,7 @@ function VyneBarbershop() {
             }}
           >
             <button
-              onClick={openBook}
+              onClick={() => openBook()}
               style={{
                 background: "#111",
                 color: "#fff",
@@ -1957,7 +1979,7 @@ function VyneBarbershop() {
       {/* FLOATING WHATSAPP */}
       {isMobile && (
         <button
-          onClick={openBook}
+          onClick={() => openBook()}
           style={{
             position: "fixed",
             bottom: 24,
@@ -2025,9 +2047,6 @@ function BookingModal({
     if (open) {
       if (initialService) {
         setService(initialService);
-        // Maybe jump to step 1 (barber)? 
-        // User said "PEDICURE HAS TO COME AND OTHER SERVICES BELOW CAN BE LISTED"
-        // So we stay on step 0 but with it selected.
       }
     } else {
       setTimeout(() => {
