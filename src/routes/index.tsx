@@ -126,7 +126,7 @@ const SERVICES = [
 
 const GALLERY = [
   "/men-hair-style.mp4",
-  "/perm-hairstyle.mp4",
+  "/our work 1.jpg",
   "/men-hair-color.mp4",
   "/our-work.mp4",
   "/razor hero.mp4",
@@ -1435,7 +1435,7 @@ function HashtagBarbers() {
             })}
           </div>
           <a
-            href="https://www.instagram.com/hashtagbarbers"
+            href="https://www.instagram.com/hashtag__barbers"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -1454,7 +1454,7 @@ function HashtagBarbers() {
           >
             <Instagram size={18} color="#D4AF37" />
             <span>Follow our work on Instagram</span>
-            <span style={{ color: "#D4AF37", fontWeight: 600 }}>@hashtagbarbers</span>
+            <span style={{ color: "#D4AF37", fontWeight: 600 }}>@hashtag__barbers</span>
             <ArrowRight size={14} color="#D4AF37" />
           </a>
         </div>
